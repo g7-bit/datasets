@@ -1,0 +1,45 @@
+!pip install Bio
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+df = pd.read_table('sequence_2.txt', names=['sequence'])
+
+sequence = df.sequence.iloc[1]
+
+# GC Content
+from Bio.Seq import Seq
+from Bio.SeqUtils import gc_fraction
+
+a_seq = Seq(sequence)
+gc_content = gc_fraction(a_seq)
+print("GC Content:", gc_content)
+
+# MOTIF IDENTIFICATION
+#regular expressions
+import re
+motif = "CTA"
+q = re.compile(motif)
+motif_indexes = [item.start(0) for item in q.finditer(sequence)]
+print("Motif indexes:", motif_indexes)
+
+# CODING region
+def identify_code_reg(seq: str):
+    coding_reg = []
+    for i in range(len(seq)):
+        if seq[i: i+3] == 'ATG':
+            start_index = i
+
+            for j in range(i+3, len(seq)-3):
+                if seq[j: j+3] == "TAA" or seq[j: j+3] == "TGA" or seq[j: j+3] == "TAG":
+                    stop_index = j
+                    region = seq[i:j+3]
+                    coding_reg.append( (i, j, region) )
+                    break
+
+    return coding_reg
+
+cd = identify_code_reg(sequence)
+print("Coding regions:", cd)

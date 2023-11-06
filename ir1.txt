@@ -1,0 +1,49 @@
+IR Assig 1
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
+def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))
+    words = nltk.word_tokenize(text)
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    return ' '.join(filtered_words)
+
+def stem_text(text):
+    stemmer = PorterStemmer()
+    words = nltk.word_tokenize(text)
+    stemmed_words = [stemmer.stem(word) for word in words]
+    return ' '.join(stemmed_words)
+
+def lemmatize_text(text):
+    lemmatizer = WordNetLemmatizer()
+    words = nltk.word_tokenize(text)
+    lemmatized_words = [lemmatizer.lemmatize(word) for word in words]
+    return ' '.join(lemmatized_words)
+
+def main():
+    # Sample text
+    text = "In a lively city, skyscrapers cast dynamic shadows, enticing exploration of local eateries. Tranquil parks offer an escape from urban life, blending modernity with history."
+
+    # Remove stop words
+    text_without_stopwords = remove_stopwords(text)
+    print("Text after stop word removal:")
+    print(text_without_stopwords)
+    print()
+
+    # Stemming
+    stemmed_text = stem_text(text)
+    print("Text after stemming:")
+    print(stemmed_text)
+    print()
+
+    # Lemmatization (using NLTK)
+    lemmatized_text = lemmatize_text(text)
+    print("Text after lemmatization:")
+    print(lemmatized_text)
+
+if __name__ == "__main__":
+    main()

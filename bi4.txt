@@ -1,0 +1,56 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, classification_report, ConfusionMatrixDisplay, auc
+
+df5 = pd.read_csv('human_data1.csv')
+df5.head()
+
+
+X = df5['sequence']
+y = df5['class']
+
+le = LabelEncoder()
+X = le.fit_transform(X)
+
+X = X.reshape(-1, 1)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+rfc = RandomForestClassifier()
+rfc.fit(X_train, y_train)
+rfc_acc = rfc.score(X_test, y_test)
+print("Random Forest Accuracy:", rfc_acc)
+
+svc = SVC()
+svc.fit(X_train, y_train)
+svc_acc = svc.score(X_test, y_test)
+print("SVM Accuracy:", svc_acc)
+
+accuracy_data = {'Model': ['RFC', 'SVC'], 'Accuracy': [rfc_acc, svc_acc]}
+accuracy_df = pd.DataFrame(accuracy_data)
+plt.figure(figsize=(8, 5))
+sns.barplot(x='Model', y='Accuracy', data=accuracy_df)
+plt.title('Accuracy Comparison between RFC and SVC')
+plt.ylim(0, 1)
+plt.show()
+
+y_pred_rfc = rfc.predict(X_test)
+y_pred_svc = svc.predict(X_test)
+cm_rfc = confusion_matrix(y_test, y_pred_rfc)
+cm_svc = confusion_matrix(y_test, y_pred_svc)
+
+disp_rfc = ConfusionMatrixDisplay(confusion_matrix=cm_rfc)
+disp_rfc.plot(cmap='Blues')
+plt.title('RFC Confusion Matrix')
+plt.show()
+
+disp_svc = ConfusionMatrixDisplay(confusion_matrix=cm_svc)
+disp_svc.plot(cmap='Blues')
+plt.title('SVC Confusion Matrix')
+plt.show()

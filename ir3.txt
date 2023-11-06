@@ -1,0 +1,19 @@
+! pip install pgmpy
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from pgmpy.models import BayesianNetwork
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.inference import VariableElimination
+
+d3 = pd.read_csv('heart.csv')
+print(d3.columns)
+
+m = BayesianNetwork( [ ('age', 'target'), ('chol', 'target'), ('thalach', 'target'), ('target', 'restecg'), ('target', 'exang'),] )
+m.fit(d3, estimator=MaximumLikelihoodEstimator)
+
+infer = VariableElimination(m)
+
+q = infer.query(variables=('target', 'exang'), evidence={'restecg': 1})
+print(q)

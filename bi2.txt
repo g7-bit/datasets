@@ -1,0 +1,73 @@
+!pip install scanpy
+
+
+import pandas as pd
+import numpy as np
+import scanpy as sc
+
+
+
+df = sc.read_csv('GSM5226574_C51ctr_raw_counts.csv')
+df.X.shape
+
+
+
+df.var['mt'] = df.var.index.str.startswith('MT-')
+
+
+
+
+ribo_url = "http://software.broadinstitute.org/gsea/msigdb/download_geneset.jsp?geneSetName=KEGG_RIBOSOME&fileType=txt"
+ribo_genes = pd.read_table(ribo_url, skiprows=2, header = None)
+
+
+
+
+df.var['ribo'] = df.var_names.isin(ribo_genes[0].values)
+
+
+
+
+sc.pp.calculate_qc_metrics(df, qc_vars=['mt', 'ribo'], percent_top=None, log1p=False, inplace=True)
+
+
+
+
+sc.pp.filter_genes(df, min_cells=3)
+
+
+
+df.obs.columns
+
+sc.pl.violin(df, ['n_genes_by_counts', 'total_counts', 'total_counts_mt', 'pct_counts_mt',
+       'total_counts_ribo', 'pct_counts_ribo'], multi_panel=True, jitter=0.4)
+
+
+
+
+upper_lim = np.quantile(df.obs.n_genes_by_counts, 0.98)
+upper_lim
+
+
+
+
+df = df[df.obs.n_genes_by_counts < upper_lim]
+df = df[df.obs.pct_counts_mt < 20]
+df = df[df.obs.pct_counts_ribo < 2]
+
+
+
+
+sc.pp.normalize_total(df, target_sum=1e4)
+sc.pp.log1p(df)
+
+
+
+sc.pp.highly_variable_genes(df, n_top_genes=2000)
+
+
+
+sc.pl.highly_variable_genes(df)
+
+
+
